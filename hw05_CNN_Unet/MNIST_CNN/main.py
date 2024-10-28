@@ -139,9 +139,9 @@ def load_mnist_data(args):
     # image_1 =  np.reshape(image_1, (28, 28))  # 变形
     # image_1 = Image.fromarray(image_1, mode="L")  # 转化成PIL类型
     # image_1.save("vis.png")  # 保存图像 完成可视化
-    #
-    # train_data = mnist_dataset(train_images, train_labels, transform)
-    # test_data = mnist_dataset(test_images, test_labels, transform)
+
+    train_data = mnist_dataset(train_images, train_labels, transform)
+    test_data = mnist_dataset(test_images, test_labels, transform)
 
     train_size = int(0.8 * len(train_images))
     validate_size = len(train_images) - train_size
