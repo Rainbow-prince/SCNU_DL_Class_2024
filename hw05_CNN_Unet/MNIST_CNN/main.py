@@ -20,13 +20,13 @@ def train(args, model, device, train_loader, optimizer, epoch) -> None:
     # TODO: explain the function of train()
     """
     用于训练模型。遍历训练数据集，计算损失，并通过反向传播更新模型的权重
-    @param args:
-    @param model:
-    @param device:
-    @param train_loader:
-    @param optimizer:
-    @param epoch:
-    @return:
+    @param args:    超参数。包括 '--type’, '--batch-size', '--test-batch-size', '--epochs', '--lr'
+    @param model:   要训练的神经网络模型
+    @param device:  CPU或GPU..
+    @param train_loader:    从训练数据集中批量加载数据
+    @param optimizer:       优化器，比如SGD或Adam
+    @param epoch:   训练周期
+    @return:        None
     """
     model.train()
     for batch_idx, (data, target) in enumerate(train_loader):
@@ -48,10 +48,10 @@ def test(model, device, test_loader, phase='validate'):
     # TODO: explain the function of eval()
     """
     评估模型性能。计算整个数据集上的平均损失和准确率
-    @param model:
-    @param device:
-    @param test_loader:
-    @param phase:
+    @param model:       要训练的神经网络模型
+    @param device:      CPU或GPU..
+    @param test_loader: 从训练数据集中批量加载测试用的数据
+    @param phase:  训练时选择'validate'，测试时为'Test'
     """
 
     model.eval()
@@ -64,8 +64,9 @@ def test(model, device, test_loader, phase='validate'):
             test_loss += F.cross_entropy(output, target, reduction='sum').item()  # sum up batch loss
             # TODO: explain the function of argmax
             pred = output.argmax(dim=1, keepdim=True)  # get the index of the max log-probability
-            """
-            模型会分别输出各种可能结果的可能性，argmax找出每个样本预测概率最高的类别
+            """  
+            模型会分别输出结果logits，表示对于某个输入数据，其为各个种类的概率大小。
+            argmax会找到最大值的索引，即模型认为最可能的类别
             """
             correct += pred.eq(target.view_as(pred)).sum().item()
 
@@ -96,26 +97,29 @@ class mnist_dataset(data.Dataset):
         """
         从data中取出一个array，转换成灰度图像之后，并进行transfrom（转成tensor并归一化）
         在把tensor变形  [1,784]->(1, 28, 28)
-        @param index:
-        @return:(1, 28, 28)灰度图像以及标签
+
+        @param index:   要获取的样本的索引
+        @return:        (1, 28, 28)灰度图像以及标签
         """
-        image = self.data[index, :]  # 此时图像还知识一个array
-        label = self.label[index, 0]  # 一个数字
+        image = self.data[index, :]  # 从数据集中取出索引为index的图像数据，此时图像还是一个np array
+        label = self.label[index, 0]  # 对应的标签，一个整数
 
         # TODO: explain each line of reading in a gray image
         # use `Image` to convert to image and apply normalization
         image = Image.fromarray(image, mode="L")  # mode="L"：灰度模式
-        image = self.transform(image)  # 在其它地方定义的操作：包括转化成tensor，以及归一化
+        image = self.transform(image)  # 在其它地方已经定义的transform操作：包括把图像转化成tensor，以及归一化
         # image [1,784] convert to a 3-D matrix of size (1,28,28)
         # the first channel 1 says its gray image with channel 1
         # if you process RGB image, that will be 3-channel instead 1
-        image = image.squeeze().view(1, 28, 28)
+        image = image.squeeze().view(1, 28, 28)  # 变形
         return image, label
 
 
 def load_mnist_data(args):
     # download mnist numpy data files from
     # https://www.kaggle.com/datasets/sivasankaru/mnist-npy-file-dataset?resource=download
+
+    # 直接点击运行时路径如下：
     train_labels = np.load('data/train_labels.npy')
     train_images = np.load('data/train_images.npy')
     test_labels = np.load('data/test_labels.npy')
