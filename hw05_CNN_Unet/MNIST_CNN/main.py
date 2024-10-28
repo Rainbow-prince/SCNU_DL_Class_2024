@@ -14,8 +14,18 @@ from model_cnn_TODO import Net
 from PIL import Image
 
 
-def train(args, model, device, train_loader, optimizer, epoch):
+def train(args, model, device, train_loader, optimizer, epoch) -> None:
     # TODO: explain the function of train()
+    """
+    用于训练模型。遍历训练数据集，计算损失，并通过反向传播更新模型的权重
+    @param args:
+    @param model:
+    @param device:
+    @param train_loader:
+    @param optimizer:
+    @param epoch:
+    @return:
+    """
     model.train()
     for batch_idx, (data, target) in enumerate(train_loader):
         data, target = data.to(device), target.to(device)
@@ -34,6 +44,14 @@ def train(args, model, device, train_loader, optimizer, epoch):
 # note: during training, you can only validate
 def test(model, device, test_loader, phase='validate'):
     # TODO: explain the function of eval()
+    """
+    评估模型性能。计算整个数据集上的平均损失和准确率
+    @param model:
+    @param device:
+    @param test_loader:
+    @param phase:
+    """
+
     model.eval()
     test_loss = 0
     correct = 0
@@ -44,6 +62,9 @@ def test(model, device, test_loader, phase='validate'):
             test_loss += F.cross_entropy(output, target, reduction='sum').item()  # sum up batch loss
             # TODO: explain the function of argmax
             pred = output.argmax(dim=1, keepdim=True)  # get the index of the max log-probability
+            """
+            模型会分别输出各种可能结果的可能性，argmax找出每个样本预测概率最高的类别
+            """
             correct += pred.eq(target.view_as(pred)).sum().item()
 
     test_loss /= len(test_loader.dataset)
@@ -70,13 +91,19 @@ class mnist_dataset(data.Dataset):
         return len(self.data)
 
     def __getitem__(self, index: int):
-        image = self.data[index, :]
-        label = self.label[index, 0]
+        """
+        从data中取出一个array，转换成灰度图像之后，并进行transfrom（转成tensor并归一化）
+        在把tensor变形  [1,784]->(1, 28, 28)
+        @param index:
+        @return:(1, 28, 28)灰度图像以及标签
+        """
+        image = self.data[index, :]  # 此时图像还知识一个array
+        label = self.label[index, 0]  # 一个数字
 
         # TODO: explain each line of reading in a gray image
-        # use Image to convert to image and apply normalization
-        image = Image.fromarray(image, mode="L")
-        image = self.transform(image)
+        # use `Image` to convert to image and apply normalization
+        image = Image.fromarray(image, mode="L")  # mode="L"：灰度模式
+        image = self.transform(image)  # 在其它地方定义的操作：包括转化成tensor，以及归一化
         # image [1,784] convert to a 3-D matrix of size (1,28,28)
         # the first channel 1 says its gray image with channel 1
         # if you process RGB image, that will be 3-channel instead 1
@@ -98,9 +125,10 @@ def load_mnist_data(args):
     print(test_images.shape, train_images.shape)
 
     # TODO: explain transforms of images
+    # transforms.Compose 用于将多个图像变换操作组合成一个序列
     transform = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize((0.1307,), (0.3081,))
+        transforms.ToTensor(),  # 把图像转换成tensor
+        transforms.Normalize((0.1307,), (0.3081,))  # 规范化，减去均值、除以方差
     ])
 
     train_data = mnist_dataset(train_images, train_labels, transform)
