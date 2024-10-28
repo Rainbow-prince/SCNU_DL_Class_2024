@@ -1,7 +1,8 @@
 import os
 import argparse
 import numpy as np
-from sympy.stats.sampling.sample_scipy import scipy
+# from d2l.mxnet import accuracy
+# from sympy.stats.sampling.sample_scipy import scipy
 from torch.utils import data
 import string
 
@@ -14,6 +15,8 @@ from torchvision import transforms
 from torch.optim.lr_scheduler import StepLR
 from model_cnn_TODO import Net
 from PIL import Image
+
+import matplotlib.pyplot as plt
 
 
 def train(args, model, device, train_loader, optimizer, epoch) -> None:
@@ -52,6 +55,7 @@ def test(model, device, test_loader, phase='validate'):
     @param device:      CPU或GPU..
     @param test_loader: 从训练数据集中批量加载测试用的数据
     @param phase:  训练时选择'validate'，测试时为'Test'
+    @return: test_accuracy 对于具体的某一个epoch的正确率
     """
 
     model.eval()
@@ -71,12 +75,14 @@ def test(model, device, test_loader, phase='validate'):
             correct += pred.eq(target.view_as(pred)).sum().item()
 
     test_loss /= len(test_loader.dataset)
+    test_accuracy = 100. * correct / len(test_loader.dataset)
 
     print('\n {}: Average loss: {:.4f}, Accuracy: {}/{} \t ({:.0f}%)\n'.format(
         phase,
         test_loss, correct, len(test_loader.dataset),
-        100. * correct / len(test_loader.dataset)))
+        test_accuracy))
 
+    return test_accuracy
 
 # read source https://pytorch.org/vision/main/_modules/torchvision/datasets/mnist.html#MNIST
 class mnist_dataset(data.Dataset):
@@ -226,9 +232,15 @@ def main():
     # TODO: record the validation accuracy in each epoch
     # use Matplot to draw the accuracy changes over each epoch
     # compare SGD, ADAM convergence and explain which and why is better
+
+    # 存储每个epoch的验证准确率
+    accuracies = []
+
     for epoch in range(1, args.epochs + 1):
         train(args, model, device, train_loader, optimizer, epoch)
-        test(model, device, validate_loader, phase='Validate')
+        accuray_i = test(model, device, validate_loader, phase='Validate')
+        accuracies.append(accuray_i)
+
         scheduler.step()
 
     # testing phase, use test set to evaluate the final performance
@@ -240,6 +252,15 @@ def main():
         if not os.path.isdir('output'):
             os.mkdir('output')
         torch.save(model.state_dict(), "output/mnist_%s.pt" % (args.type,))
+
+    # 对准确率的变化进行可视化
+    plt.plot(accuracies, label='Validation Accuracy')
+    plt.xlabel('Epoch')
+    plt.ylabel('Accuracy (%)')
+    plt.title('Validation Accuracy per Epoch')
+    plt.legend()
+    plt.show()
+
 
 
 if __name__ == '__main__':
