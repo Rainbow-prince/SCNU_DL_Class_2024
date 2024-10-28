@@ -1,6 +1,7 @@
 import os
 import argparse
 import numpy as np
+from sympy.stats.sampling.sample_scipy import scipy
 from torch.utils import data
 import string
 
@@ -8,6 +9,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+# from torch.utils.tensorboard.summary import image
 from torchvision import transforms
 from torch.optim.lr_scheduler import StepLR
 from model_cnn_TODO import Net
@@ -131,8 +133,15 @@ def load_mnist_data(args):
         transforms.Normalize((0.1307,), (0.3081,))  # 规范化，减去均值、除以方差
     ])
 
-    train_data = mnist_dataset(train_images, train_labels, transform)
-    test_data = mnist_dataset(test_images, test_labels, transform)
+    # Q1_step1
+    # 在进行训练和测试之前先进行可视化
+    # image_1 = train_images[0,:]  # 取出第一张图像
+    # image_1 =  np.reshape(image_1, (28, 28))  # 变形
+    # image_1 = Image.fromarray(image_1, mode="L")  # 转化成PIL类型
+    # image_1.save("vis.png")  # 保存图像 完成可视化
+    #
+    # train_data = mnist_dataset(train_images, train_labels, transform)
+    # test_data = mnist_dataset(test_images, test_labels, transform)
 
     train_size = int(0.8 * len(train_images))
     validate_size = len(train_images) - train_size
