@@ -13,8 +13,9 @@ H_col = torch.zeros(200,1).float()
 # TODO: assign H_row, H_col values
 # TODO: repeat channels or resize both H_row and H_col to make the following code work,
 #  since you want translate pixel on each of the RGB channels
-
-
+H_row[0][-1] = H_col[-1][0] = 1
+H_row = H_row.view(1, 1, 1, 200).repeat(3, 1, 1, 1)
+H_col = H_col.view(1, 1, 200, 1).repeat(3, 1, 1, 1)
 ###############################################
 ## Warning: Do not modify any lines below  ###
 ###############################################
