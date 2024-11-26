@@ -57,7 +57,7 @@ if __name__ == '__main__':
     with open(args.vocab_path,'rb') as f:
         train_set = pickle.load(f)
 
-
+    # model = torch.load(args.model_path, weights_only=True, map_location='cpu').to(device)
     model = torch.load(args.model_path, map_location='cpu').to(device)
     response = generate(model, train_set, args.query_str, args.predict_len, device)
     print('Q: %s' % (args.query_str,))

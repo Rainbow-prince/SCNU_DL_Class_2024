@@ -107,6 +107,7 @@ def main(args):
         model=args.model,
         n_layers=args.n_layers,
     ).to(device)
+    torch.serialization.add_safe_globals([QA_RNN])
 
     # if you want to resume training, uncomment this
     if False:
