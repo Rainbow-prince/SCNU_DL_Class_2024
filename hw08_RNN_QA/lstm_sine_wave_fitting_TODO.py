@@ -94,8 +94,9 @@ class WaveModel(nn.Module):
         pred_step = []
         for p in range(predict_len):
             # TODO: use last hidden and output to feed lstm, update h_t+1, write a line of code here
-
+            output, (hn, cn) = self.lstm(last_output, (hn, cn))
             # TODO: update y_t+1 as last_output, write a line of code here
+            last_output = self.linear(output)
 
             # store y_t+1
             # currently last_output is dummy from encoder
@@ -167,7 +168,7 @@ if __name__ == '__main__':
             h0, c0 = model.init_hidden(input.size(0))
             out = model(input, h0, c0)
             loss = criterion(out, target)
-            # print('loss:', loss.item())
+            print('loss:', loss.item())
             loss.backward()
             return loss
 
